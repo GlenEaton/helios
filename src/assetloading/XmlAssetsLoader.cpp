@@ -31,6 +31,7 @@ namespace fs = boost::filesystem;
 #include "FullWaveformPulseDetector.h"
 #include "OscillatingMirrorBeamDeflector.h"
 #include "PolygonMirrorBeamDeflector.h"
+#include "PolygonMirrorNFBBeamDeflector.h"
 #include "RisleyBeamDeflector.h"
 #include <scanner/beamDeflector/evaluable/EvalPolygonMirrorBeamDeflector.h>
 #include <scanner/EvalScannerHead.h>
@@ -967,11 +968,9 @@ XmlAssetsLoader::createBeamDeflectorFromXml(
         XmlUtils::getAttribute(scannerNode, "scanFreqMax_Hz", "double", 0.0));
     double scanFreqMin_Hz = boost::get<double>(
         XmlUtils::getAttribute(scannerNode, "scanFreqMin_Hz", "double", 0.0));
-    double scanAngleMax_rad = MathConverter::degreesToRadians(
-        boost::get<double>(XmlUtils::getAttribute(
-            scannerNode, "scanAngleMax_deg", "double", 0.0
-        ))
-    );
+    double scanAngleMax_rad = MathConverter::degreesToRadians(boost::get<double>(
+        XmlUtils::getAttribute(scannerNode, "scanAngleMax_deg", "double", 0.0)));
+        
     // Build beam deflector
     if (str_opticsType == "oscillating") {
         int scanProduct = boost::get<int>(
@@ -1019,6 +1018,15 @@ XmlAssetsLoader::createBeamDeflectorFromXml(
                 scanAngleEffectiveMax_rad
             );
         }
+    } else if (str_opticsType == "rotatingnfb") { // Build classical beam deflector
+        double scanAngleEffectiveMax_rad = MathConverter::degreesToRadians(
+            boost::get<double>(XmlUtils::getAttribute(
+                scannerNode, "scanAngleEffectiveMax_deg", "double", 0.0
+            ))
+        );
+        beamDeflector = std::make_shared<PolygonMirrorNFBBeamDeflector>(
+            scanFreqMax_Hz, scanFreqMin_Hz, scanAngleMax_rad, scanAngleEffectiveMax_rad
+            );
     } else if (str_opticsType == "risley") {
         int rotorFreq_1_Hz = boost::get<int>(
             XmlUtils::getAttribute(scannerNode, "rotorFreq1_Hz", "int", 7294));
@@ -1466,6 +1474,10 @@ void XmlAssetsLoader::fillScanningDevicesFromChannels(
                     PolygonMirrorBeamDeflector
                 >(deflec)!=nullptr
             ) || (
+                optics=="rotatingnfb" && std::dynamic_pointer_cast<
+                    PolygonMirrorNFBBeamDeflector
+                >(deflec)!=nullptr
+            ) || (
                 optics=="risley" && std::dynamic_pointer_cast<
                     RisleyBeamDeflector
                 >(deflec)!=nullptr
@@ -1538,6 +1550,22 @@ void XmlAssetsLoader::fillScanningDevicesFromChannels(
                             chan, "scanAngleEffectiveMax_deg", "double",
                             MathConverter::radiansToDegrees(
                                 pmbd->cfg_device_scanAngleMax_rad
+                            )
+                        )
+                    ));
+            }
+            // Polygon mirror beam deflector updates
+            if(optics == "rotatingnfb"){
+                std::shared_ptr<PolygonMirrorNFBBeamDeflector> pmnfbbd =
+                    std::static_pointer_cast<PolygonMirrorNFBBeamDeflector>(
+                        _deflec
+                        );
+                pmnfbbd->cfg_device_scanAngleMax_rad =
+                    MathConverter::degreesToRadians(boost::get<double>(
+                        XmlUtils::getAttribute(
+                            chan, "scanAngleEffectiveMax_deg", "double",
+                            MathConverter::radiansToDegrees(
+                                pmnfbbd->cfg_device_scanAngleMax_rad
                             )
                         )
                     ));

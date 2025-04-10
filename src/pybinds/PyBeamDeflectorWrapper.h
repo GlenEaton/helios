@@ -5,6 +5,7 @@
 #include <scanner/beamDeflector/FiberArrayBeamDeflector.h>
 #include <scanner/beamDeflector/OscillatingMirrorBeamDeflector.h>
 #include <scanner/beamDeflector/PolygonMirrorBeamDeflector.h>
+#include <scanner/beamDeflector/PolygonMirrorNFBBeamDeflector.h>
 #include <scanner/beamDeflector/RisleyBeamDeflector.h>
 
 #include <memory>

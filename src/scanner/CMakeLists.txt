@@ -18,6 +18,7 @@ target_sources(
   "beamDeflector/evaluable/EvalPolygonMirrorBeamDeflector.cpp"
   "beamDeflector/RisleyBeamDeflector.cpp"
   "beamDeflector/PolygonMirrorBeamDeflector.cpp"
+  "beamDeflector/PolygonMirrorNFBBeamDeflector.cpp"
   "beamDeflector/FiberArrayBeamDeflector.cpp"
   "beamDeflector/ConicBeamDeflector.cpp"
   "beamDeflector/OscillatingMirrorBeamDeflector.cpp"
