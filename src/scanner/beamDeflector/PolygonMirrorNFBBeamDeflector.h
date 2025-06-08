@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AbstractBeamDeflector.h"
+#include <limits> // Required for std::numeric_limits
 
 /**
  * @brief Class representing a polygon mirror beam deflector with three facets, Nadir, Forward, Backward
@@ -19,18 +20,45 @@ protected:
 	 */
 	double cfg_device_scanAngleEffectiveMax_rad = 0;
 
+    // /**
+    //  * @brief The forward/backward tilt angle calculated in the last doSimStep call (radians).
+    //  */
+    //!!double state_currentRollAngle_rad = 0.0; // NEW member variable
+
+    int state_currentLineCounter = 0;
+
     /**
-     * @brief Simulation time for tracking mirror cycle progress
+     * @brief The calculated maximum effective forward angle based on settings (radians).
      */
-    double state_simTime = 0.0;
+    double cached_maxSetRollAngle_rad = std::numeric_limits<double>::quiet_NaN(); // NEW member variable, init to NaN
+
+    /**
+     * @brief The calculated maximum effective forward angle based on settings (radians).
+     */
+    double cached_maxSetForwardAngle_rad = std::numeric_limits<double>::quiet_NaN(); // NEW member variable, init to NaN
+
+    ///**
+    // * @brief Simulation time for tracking mirror cycle progress
+    // */
+    ////double state_simTime = 0.0;
     
 private:
+    ///**
+    // * @brief Simulation time for tracking mirror cycle progress
+    // */
+    double parCoefficient = 0.0; // parameter coefficient for the parabolic curve
+    double minTiltAngle_deg = 0.0; // minimum tilt in degrees
+    //double pulseTime = 0.0;
+    //double facetPulseTime = 0.0;
+    //double pulsesPerScanline = 0.0;
+    //double facetFreq = 0.0;
+    //double facetPulseFreq = 0.0;
+    //int pulseFreq = 0;
+    //double effAngleRatio = 0.0;
     /**
-     * @brief Simulation time for tracking mirror cycle progress
+     * @brief Relative emitter attitude
      */
-    double pulseTime = 0.0;
-    double pulsesPerScanline = 0.0;
-    int pulseFreq = 0; 
+    Rotation cached_emitterSetRelativeAttitude = Rotation(glm::dvec3(1, 0, 0), 0);
 
 public:
     // ***  CONSTRUCTION  / DESTRUCTION  *** //
@@ -78,6 +106,7 @@ public:
 	 * @see AbstractBeamDeflector::lastPulseLeftDevice
 	 */
 	bool lastPulseLeftDevice() override;
+
 	/**
 	 * @brief Obtain the maximum effective scan angle in radians.
 	 * @see PolygonMirrorNFBBeamDeflector::cfg_device_scanAngleEffectiveMax_rad
